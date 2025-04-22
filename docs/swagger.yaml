@@ -1,0 +1,217 @@
+definitions:
+  main.ErrorResponse:
+    properties:
+      message:
+        description: 错误信息
+        example: 错误信息
+        type: string
+      success:
+        description: 是否成功
+        example: false
+        type: boolean
+    type: object
+  main.GetUserInfoResponse:
+    properties:
+      success:
+        description: 是否成功
+        example: true
+        type: boolean
+      user:
+        allOf:
+        - $ref: '#/definitions/main.UserInfo'
+        description: 用户信息
+    type: object
+  main.LoginRequest:
+    properties:
+      password:
+        description: 密码
+        example: "123456"
+        type: string
+      username:
+        description: 用户名
+        example: testuser
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  main.LoginResponse:
+    properties:
+      message:
+        description: 返回消息
+        example: 登录成功
+        type: string
+      success:
+        description: 是否成功
+        example: true
+        type: boolean
+      token:
+        description: JWT令牌
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/main.UserInfo'
+        description: 用户信息
+    type: object
+  main.RegisterRequest:
+    properties:
+      email:
+        description: 电子邮件
+        example: test@example.com
+        type: string
+      password:
+        description: 密码
+        example: "123456"
+        minLength: 6
+        type: string
+      username:
+        description: 用户名
+        example: testuser
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  main.RegisterResponse:
+    properties:
+      message:
+        description: 返回消息
+        example: 注册成功
+        type: string
+      success:
+        description: 是否成功
+        example: true
+        type: boolean
+      user_id:
+        description: 用户ID
+        example: 1
+        type: integer
+    type: object
+  main.UserInfo:
+    properties:
+      created_at:
+        description: 创建时间
+        example: "2025-04-22T15:04:05+08:00"
+        type: string
+      email:
+        description: 电子邮件
+        example: test@example.com
+        type: string
+      id:
+        description: 用户ID
+        example: 1
+        type: integer
+      username:
+        description: 用户名
+        example: testuser
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录并获取认证令牌
+      parameters:
+      - description: 登录信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/main.LoginResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: 认证失败
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      summary: 用户登录
+      tags:
+      - 用户
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: 注册新用户
+      parameters:
+      - description: 注册信息
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/main.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/main.RegisterResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      summary: 用户注册
+      tags:
+      - 用户
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取指定ID的用户信息
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 成功
+          schema:
+            $ref: '#/definitions/main.GetUserInfoResponse'
+        "400":
+          description: 请求参数错误
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "401":
+          description: 未授权
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "404":
+          description: 用户不存在
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: 服务器内部错误
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
+      security:
+      - Bearer: []
+      summary: 获取用户信息
+      tags:
+      - 用户
+swagger: "2.0"

@@ -365,6 +365,214 @@ func (x *GetUserInfoResponse) GetUser() *UserInfo {
 	return nil
 }
 
+type LogoutRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutRequest) Reset() {
+	*x = LogoutRequest{}
+	mi := &file_api_proto_user_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutRequest) ProtoMessage() {}
+
+func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_user_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutRequest.ProtoReflect.Descriptor instead.
+func (*LogoutRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_user_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *LogoutRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+type LogoutResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutResponse) Reset() {
+	*x = LogoutResponse{}
+	mi := &file_api_proto_user_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutResponse) ProtoMessage() {}
+
+func (x *LogoutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_user_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutResponse.ProtoReflect.Descriptor instead.
+func (*LogoutResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_user_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *LogoutResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *LogoutResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+type ValidateSessionRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateSessionRequest) Reset() {
+	*x = ValidateSessionRequest{}
+	mi := &file_api_proto_user_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateSessionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateSessionRequest) ProtoMessage() {}
+
+func (x *ValidateSessionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_user_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateSessionRequest.ProtoReflect.Descriptor instead.
+func (*ValidateSessionRequest) Descriptor() ([]byte, []int) {
+	return file_api_proto_user_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ValidateSessionRequest) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+type ValidateSessionResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Valid         bool                   `protobuf:"varint,1,opt,name=valid,proto3" json:"valid,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	UserId        uint64                 `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Username      string                 `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ValidateSessionResponse) Reset() {
+	*x = ValidateSessionResponse{}
+	mi := &file_api_proto_user_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ValidateSessionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ValidateSessionResponse) ProtoMessage() {}
+
+func (x *ValidateSessionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_proto_user_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ValidateSessionResponse.ProtoReflect.Descriptor instead.
+func (*ValidateSessionResponse) Descriptor() ([]byte, []int) {
+	return file_api_proto_user_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ValidateSessionResponse) GetValid() bool {
+	if x != nil {
+		return x.Valid
+	}
+	return false
+}
+
+func (x *ValidateSessionResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *ValidateSessionResponse) GetUserId() uint64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *ValidateSessionResponse) GetUsername() string {
+	if x != nil {
+		return x.Username
+	}
+	return ""
+}
+
 type UserInfo struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -377,7 +585,7 @@ type UserInfo struct {
 
 func (x *UserInfo) Reset() {
 	*x = UserInfo{}
-	mi := &file_api_proto_user_proto_msgTypes[6]
+	mi := &file_api_proto_user_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -389,7 +597,7 @@ func (x *UserInfo) String() string {
 func (*UserInfo) ProtoMessage() {}
 
 func (x *UserInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_api_proto_user_proto_msgTypes[6]
+	mi := &file_api_proto_user_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -402,7 +610,7 @@ func (x *UserInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UserInfo.ProtoReflect.Descriptor instead.
 func (*UserInfo) Descriptor() ([]byte, []int) {
-	return file_api_proto_user_proto_rawDescGZIP(), []int{6}
+	return file_api_proto_user_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UserInfo) GetId() uint64 {
@@ -459,17 +667,33 @@ const file_api_proto_user_proto_rawDesc = "" +
 	"\x13GetUserInfoResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\amessage\x18\x02 \x01(\tR\amessage\x12\"\n" +
-	"\x04user\x18\x03 \x01(\v2\x0e.user.UserInfoR\x04user\"k\n" +
+	"\x04user\x18\x03 \x01(\v2\x0e.user.UserInfoR\x04user\".\n" +
+	"\rLogoutRequest\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\"D\n" +
+	"\x0eLogoutResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"7\n" +
+	"\x16ValidateSessionRequest\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\"~\n" +
+	"\x17ValidateSessionResponse\x12\x14\n" +
+	"\x05valid\x18\x01 \x01(\bR\x05valid\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\x12\x17\n" +
+	"\auser_id\x18\x03 \x01(\x04R\x06userId\x12\x1a\n" +
+	"\busername\x18\x04 \x01(\tR\busername\"k\n" +
 	"\bUserInfo\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
 	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\x04 \x01(\tR\tcreatedAt2\xc4\x01\n" +
+	"created_at\x18\x04 \x01(\tR\tcreatedAt2\xcd\x02\n" +
 	"\vUserService\x12;\n" +
 	"\bRegister\x12\x15.user.RegisterRequest\x1a\x16.user.RegisterResponse\"\x00\x122\n" +
 	"\x05Login\x12\x12.user.LoginRequest\x1a\x13.user.LoginResponse\"\x00\x12D\n" +
-	"\vGetUserInfo\x12\x18.user.GetUserInfoRequest\x1a\x19.user.GetUserInfoResponse\"\x00B\x10Z\x0eapi/proto/userb\x06proto3"
+	"\vGetUserInfo\x12\x18.user.GetUserInfoRequest\x1a\x19.user.GetUserInfoResponse\"\x00\x125\n" +
+	"\x06Logout\x12\x13.user.LogoutRequest\x1a\x14.user.LogoutResponse\"\x00\x12P\n" +
+	"\x0fValidateSession\x12\x1c.user.ValidateSessionRequest\x1a\x1d.user.ValidateSessionResponse\"\x00B\x10Z\x0eapi/proto/userb\x06proto3"
 
 var (
 	file_api_proto_user_proto_rawDescOnce sync.Once
@@ -483,30 +707,38 @@ func file_api_proto_user_proto_rawDescGZIP() []byte {
 	return file_api_proto_user_proto_rawDescData
 }
 
-var file_api_proto_user_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_api_proto_user_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_api_proto_user_proto_goTypes = []any{
-	(*RegisterRequest)(nil),     // 0: user.RegisterRequest
-	(*RegisterResponse)(nil),    // 1: user.RegisterResponse
-	(*LoginRequest)(nil),        // 2: user.LoginRequest
-	(*LoginResponse)(nil),       // 3: user.LoginResponse
-	(*GetUserInfoRequest)(nil),  // 4: user.GetUserInfoRequest
-	(*GetUserInfoResponse)(nil), // 5: user.GetUserInfoResponse
-	(*UserInfo)(nil),            // 6: user.UserInfo
+	(*RegisterRequest)(nil),         // 0: user.RegisterRequest
+	(*RegisterResponse)(nil),        // 1: user.RegisterResponse
+	(*LoginRequest)(nil),            // 2: user.LoginRequest
+	(*LoginResponse)(nil),           // 3: user.LoginResponse
+	(*GetUserInfoRequest)(nil),      // 4: user.GetUserInfoRequest
+	(*GetUserInfoResponse)(nil),     // 5: user.GetUserInfoResponse
+	(*LogoutRequest)(nil),           // 6: user.LogoutRequest
+	(*LogoutResponse)(nil),          // 7: user.LogoutResponse
+	(*ValidateSessionRequest)(nil),  // 8: user.ValidateSessionRequest
+	(*ValidateSessionResponse)(nil), // 9: user.ValidateSessionResponse
+	(*UserInfo)(nil),                // 10: user.UserInfo
 }
 var file_api_proto_user_proto_depIdxs = []int32{
-	6, // 0: user.LoginResponse.user:type_name -> user.UserInfo
-	6, // 1: user.GetUserInfoResponse.user:type_name -> user.UserInfo
-	0, // 2: user.UserService.Register:input_type -> user.RegisterRequest
-	2, // 3: user.UserService.Login:input_type -> user.LoginRequest
-	4, // 4: user.UserService.GetUserInfo:input_type -> user.GetUserInfoRequest
-	1, // 5: user.UserService.Register:output_type -> user.RegisterResponse
-	3, // 6: user.UserService.Login:output_type -> user.LoginResponse
-	5, // 7: user.UserService.GetUserInfo:output_type -> user.GetUserInfoResponse
-	5, // [5:8] is the sub-list for method output_type
-	2, // [2:5] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	10, // 0: user.LoginResponse.user:type_name -> user.UserInfo
+	10, // 1: user.GetUserInfoResponse.user:type_name -> user.UserInfo
+	0,  // 2: user.UserService.Register:input_type -> user.RegisterRequest
+	2,  // 3: user.UserService.Login:input_type -> user.LoginRequest
+	4,  // 4: user.UserService.GetUserInfo:input_type -> user.GetUserInfoRequest
+	6,  // 5: user.UserService.Logout:input_type -> user.LogoutRequest
+	8,  // 6: user.UserService.ValidateSession:input_type -> user.ValidateSessionRequest
+	1,  // 7: user.UserService.Register:output_type -> user.RegisterResponse
+	3,  // 8: user.UserService.Login:output_type -> user.LoginResponse
+	5,  // 9: user.UserService.GetUserInfo:output_type -> user.GetUserInfoResponse
+	7,  // 10: user.UserService.Logout:output_type -> user.LogoutResponse
+	9,  // 11: user.UserService.ValidateSession:output_type -> user.ValidateSessionResponse
+	7,  // [7:12] is the sub-list for method output_type
+	2,  // [2:7] is the sub-list for method input_type
+	2,  // [2:2] is the sub-list for extension type_name
+	2,  // [2:2] is the sub-list for extension extendee
+	0,  // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_user_proto_init() }
@@ -520,7 +752,7 @@ func file_api_proto_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_user_proto_rawDesc), len(file_api_proto_user_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

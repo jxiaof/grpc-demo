@@ -17,6 +17,12 @@ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 ```
 
+### 安装 Swagger 工具
+
+```bash
+go install github.com/swaggo/swag/cmd/swag@latest
+```
+
 ### 添加 Go bin 目录到环境变量
 
 ```bash
@@ -40,6 +46,12 @@ source ~/.zshrc
 protoc --go_out=. --go-grpc_out=. api/proto/user.proto
 ```
 
+## 生成 Swagger 文档(如需更新)
+
+```bash
+swag init -g cmd/api-gateway/main.go -o docs
+```
+
 ## 运行服务
 
 ### 启动用户服务 (gRPC)
@@ -53,6 +65,14 @@ go run main.go user-service
 在另一个终端中运行：
 ```bash
 go run main.go api-gateway
+```
+
+## 访问 API 文档
+
+启动服务后，访问以下地址查看 API 文档：
+
+```
+http://localhost:8080/swagger/index.html
 ```
 
 ## API 测试
@@ -77,8 +97,8 @@ curl -X POST http://localhost:8080/api/login \
 
 使用登录返回的 token：
 ```bash
-curl -X GET http://localhost:8080/api/users/1 \
-  -H "Authorization: Bearer {token}"
+curl -X GET http://localhost:8080/api/users/2 \
+  -H "Authorization: Bearer uN347MK0DS_JoV5d4eIx8bPavX8hTKuQmkDo4C6x4Pg="
 ```
 
 ## 项目结构
@@ -88,6 +108,7 @@ curl -X GET http://localhost:8080/api/users/1 \
   - `api-gateway/`: API 网关服务 (Gin)
   - `user-service/`: 用户服务 (gRPC)
 - `config/`: 配置管理
+- `docs/`: Swagger API 文档
 - `internal/`: 内部包
   - `model/`: 数据模型
   - `repository/`: 数据访问层
@@ -97,7 +118,9 @@ curl -X GET http://localhost:8080/api/users/1 \
   - `database/`: 数据库连接
   - `util/`: 实用工具函数
 
+## 使用 Docker 运行数据库（可选）
 
+### MySQL
 
 ```bash
 docker run --name mysql-demo \
@@ -108,6 +131,8 @@ docker run --name mysql-demo \
   --character-set-server=utf8mb4 \
   --collation-server=utf8mb4_unicode_ci
 ```
+
+### Redis
 
 ```bash
 docker run --name redis-demo \

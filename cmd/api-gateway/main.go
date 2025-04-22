@@ -1,188 +1,49 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"net/http"
-	"strings"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	pb "demo/api/proto/user"
+	"demo/cmd/api-gateway/handler"
 	"demo/config"
+	"demo/docs"
 	"demo/pkg/auth"
+	"demo/pkg/database"
+	"demo/pkg/logger"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type UserHandler struct {
-	userClient pb.UserServiceClient
-	jwtManager *auth.JWTManager
-}
-
-func NewUserHandler(userClient pb.UserServiceClient, jwtManager *auth.JWTManager) *UserHandler {
-	return &UserHandler{
-		userClient: userClient,
-		jwtManager: jwtManager,
-	}
-}
-
-// 用户注册
-func (h *UserHandler) Register(c *gin.Context) {
-	var req struct {
-		Username string `json:"username" binding:"required"`
-		Email    string `json:"email" binding:"required,email"`
-		Password string `json:"password" binding:"required,min=6"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "请求参数错误"})
-		return
-	}
-
-	resp, err := h.userClient.Register(c.Request.Context(), &pb.RegisterRequest{
-		Username: req.Username,
-		Email:    req.Email,
-		Password: req.Password,
-	})
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "服务器内部错误"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": resp.Success,
-		"message": resp.Message,
-		"user_id": resp.UserId,
-	})
-}
-
-// 用户登录
-func (h *UserHandler) Login(c *gin.Context) {
-	var req struct {
-		Username string `json:"username" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "请求参数错误"})
-		return
-	}
-
-	resp, err := h.userClient.Login(c.Request.Context(), &pb.LoginRequest{
-		Username: req.Username,
-		Password: req.Password,
-	})
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "服务器内部错误"})
-		return
-	}
-
-	if !resp.Success {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"success": false,
-			"message": resp.Message,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"message": "登录成功",
-		"token":   resp.Token,
-		"user": gin.H{
-			"id":         resp.User.Id,
-			"username":   resp.User.Username,
-			"email":      resp.User.Email,
-			"created_at": resp.User.CreatedAt,
-		},
-	})
-}
-
-// 获取用户信息
-func (h *UserHandler) GetUserInfo(c *gin.Context) {
-	// 从路径获取userID
-	userID := c.Param("id")
-
-	if userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "用户ID不能为空"})
-		return
-	}
-
-	// 解析userID
-	var id uint64
-	if _, err := fmt.Sscanf(userID, "%d", &id); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"success": false, "message": "无效的用户ID"})
-		return
-	}
-
-	resp, err := h.userClient.GetUserInfo(c.Request.Context(), &pb.GetUserInfoRequest{
-		UserId: id,
-	})
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"success": false, "message": "服务器内部错误"})
-		return
-	}
-
-	if !resp.Success {
-		c.JSON(http.StatusNotFound, gin.H{
-			"success": false,
-			"message": resp.Message,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"user": gin.H{
-			"id":         resp.User.Id,
-			"username":   resp.User.Username,
-			"email":      resp.User.Email,
-			"created_at": resp.User.CreatedAt,
-		},
-	})
-}
-
-// JWT认证中间件
-func (h *UserHandler) AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "未提供认证信息"})
-			c.Abort()
-			return
-		}
-
-		// Bearer token格式处理
-		parts := strings.SplitN(authHeader, " ", 2)
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "认证格式错误"})
-			c.Abort()
-			return
-		}
-
-		// 解析Token
-		claims, err := h.jwtManager.ParseToken(parts[1])
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"success": false, "message": "无效的认证令牌"})
-			c.Abort()
-			return
-		}
-
-		// 将用户信息存储到上下文中
-		c.Set("user_id", claims.UserID)
-		c.Set("username", claims.Username)
-
-		c.Next()
-	}
-}
-
 func main() {
 	// 加载配置
 	cfg := config.GetDefaultConfig()
+
+	// 初始化日志
+	log := logger.InitLogger(cfg.Logger)
+	defer logger.Sync() // 确保所有日志都被刷新
+
+	log.Info("API网关启动中...",
+		zap.Int("port", cfg.APIGateway.Port),
+		zap.String("user_service_addr", cfg.APIGateway.UserServiceAddr))
+
+	// 设置Swagger信息
+	docs.SwaggerInfo.Host = fmt.Sprintf("localhost:%d", cfg.APIGateway.Port)
+	docs.SwaggerInfo.BasePath = "/api"
+	docs.SwaggerInfo.Title = "用户服务 API"
+	docs.SwaggerInfo.Description = "微服务用户系统API文档"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	// 连接到用户服务
 	conn, err := grpc.Dial(
@@ -190,38 +51,160 @@ func main() {
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	)
 	if err != nil {
-		log.Fatalf("无法连接到用户服务: %v", err)
+		log.Fatal("无法连接到用户服务", zap.Error(err))
 	}
 	defer conn.Close()
+	log.Info("成功连接到用户服务")
 
 	userClient := pb.NewUserServiceClient(conn)
 
-	// 创建JWT管理器
-	jwtManager := auth.NewJWTManager(cfg.JWTSecretKey, cfg.TokenDuration)
+	// 创建Redis客户端(用于会话管理)
+	redisClient, err := database.NewRedisClient(cfg.Redis)
+	if err != nil {
+		log.Fatal("无法连接到Redis", zap.Error(err))
+	}
+	defer redisClient.Close()
+	log.Info("成功连接到Redis服务器")
+
+	// 创建Session管理器
+	sessionManager := auth.NewSessionManager(redisClient, "session_id", cfg.TokenDuration)
 
 	// 创建处理器
-	userHandler := NewUserHandler(userClient, jwtManager)
+	userHandler := handler.NewUserHandler(userClient, sessionManager, log)
+
+	// 设置Gin日志模式
+	if cfg.Logger.Level == "debug" {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	// 设置Gin路由
 	router := gin.Default()
 
+	// 配置中间件和路由...
+	configureRouter(router, userHandler, log)
+
+	// 创建HTTP服务器
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", cfg.APIGateway.Port),
+		Handler: router,
+	}
+
+	// 优雅启动服务器
+	startServerGracefully(srv, log, cfg.APIGateway.Port)
+}
+
+// 配置路由和中间件
+func configureRouter(router *gin.Engine, userHandler *handler.UserHandler, log *zap.Logger) {
+	// 添加日志中间件
+	router.Use(createLogMiddleware(log))
+
+	// 启用CORS中间件
+	router.Use(createCorsMiddleware())
+
+	// 添加Swagger文档路由
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	// 公共API
-	router.POST("/api/register", userHandler.Register)
-	router.POST("/api/login", userHandler.Login)
+	apiGroup := router.Group("/api")
+	{
+		apiGroup.POST("/register", userHandler.Register)
+		apiGroup.POST("/login", userHandler.Login)
+	}
 
 	// 需要认证的API
-	authRouter := router.Group("/api")
+	authRouter := apiGroup.Group("")
 	authRouter.Use(userHandler.AuthMiddleware())
 	{
 		authRouter.GET("/users/:id", userHandler.GetUserInfo)
+		authRouter.POST("/logout", userHandler.Logout)
 		// 可以添加更多需要认证的API路由
 	}
 
-	// 启动服务器
-	addr := fmt.Sprintf(":%d", cfg.APIGateway.Port)
-	log.Printf("API网关启动在端口 %d", cfg.APIGateway.Port)
+	// 添加一个重定向到Swagger UI的根路由
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
+	})
+}
 
-	if err := router.Run(addr); err != nil {
-		log.Fatalf("无法启动API网关: %v", err)
+// 创建日志中间件
+func createLogMiddleware(log *zap.Logger) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		start := time.Now()
+		path := c.Request.URL.Path
+		raw := c.Request.URL.RawQuery
+
+		// 处理请求
+		c.Next()
+
+		// 获取请求耗时
+		latency := time.Since(start)
+
+		// 获取客户端信息
+		clientIP := c.ClientIP()
+		method := c.Request.Method
+		statusCode := c.Writer.Status()
+
+		if raw != "" {
+			path = path + "?" + raw
+		}
+
+		// 记录访问日志
+		log.Info("HTTP请求",
+			zap.String("method", method),
+			zap.String("path", path),
+			zap.Int("status", statusCode),
+			zap.Duration("latency", latency),
+			zap.String("client_ip", clientIP),
+		)
 	}
+}
+
+// 创建CORS中间件
+func createCorsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
+
+// 优雅启动和关闭服务器
+func startServerGracefully(srv *http.Server, log *zap.Logger, port int) {
+	// 优雅启动服务器
+	go func() {
+		log.Info("API网关启动在端口",
+			zap.Int("port", port),
+			zap.String("swagger_url", fmt.Sprintf("http://localhost:%d/swagger/index.html", port)))
+
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal("无法启动API网关", zap.Error(err))
+		}
+	}()
+
+	// 等待中断信号优雅地关闭服务器
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Info("正在关闭API网关服务器...")
+
+	// 创建一个5秒的上下文用于超时
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("API网关关闭过程中出错", zap.Error(err))
+	}
+
+	log.Info("API网关服务器已安全关闭")
 }
