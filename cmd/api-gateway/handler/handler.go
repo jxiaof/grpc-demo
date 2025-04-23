@@ -247,8 +247,10 @@ func (h *UserHandler) AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		h.logger.Info("----------> 验证Session authHeader", zap.String("authHeader", authHeader))
 		// 获取SessionID
-		sessionID := parts[1]
+		sessionID := strings.TrimSpace(parts[1])
+		h.logger.Info("----------> 验证Session sessionID", zap.String("sessionID", sessionID))
 
 		// 验证Session
 		resp, err := h.userClient.ValidateSession(c.Request.Context(), &pb.ValidateSessionRequest{

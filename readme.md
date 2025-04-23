@@ -72,7 +72,7 @@ go run main.go api-gateway
 启动服务后，访问以下地址查看 API 文档：
 
 ```
-http://localhost:8080/swagger/index.html
+http://localhost:8000/swagger/index.html
 ```
 
 ## API 测试
@@ -80,25 +80,25 @@ http://localhost:8080/swagger/index.html
 ### 注册用户
 
 ```bash
-curl -X POST http://localhost:8080/api/register \
+curl -X POST http://localhost:8000/api/register \
   -H "Content-Type: application/json" \
-  -d '{"username":"testuser", "email":"test@example.com", "password":"123456"}'
+  -d '{"username":"testuser", "email":"test@example.com", "password":"aA12345678"}'
 ```
 
 ### 用户登录
 
 ```bash
-curl -X POST http://localhost:8080/api/login \
+curl -X POST http://localhost:8000/api/login \
   -H "Content-Type: application/json" \
-  -d '{"username":"testuser", "password":"123456"}'
+  -d '{"username":"testuser", "password":"aA12345678"}'
 ```
 
 ### 获取用户信息
 
 使用登录返回的 token：
 ```bash
-curl -X GET http://localhost:8080/api/users/2 \
-  -H "Authorization: Bearer uN347MK0DS_JoV5d4eIx8bPavX8hTKuQmkDo4C6x4Pg="
+curl -X GET http://localhost:8000/api/users/2 \
+  -H "Authorization:Bearer 0e0-vzYHSHto5OfAF3Y_1smelA0b8DLg1KdwziCX-oI="
 ```
 
 ## 项目结构

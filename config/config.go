@@ -41,7 +41,7 @@ type UserServiceConfig struct {
 func GetDefaultConfig() ServiceConfig {
 	return ServiceConfig{
 		APIGateway: APIGatewayConfig{
-			Port:            8080,
+			Port:            8000,
 			UserServiceAddr: "localhost:50051",
 		},
 		UserService: UserServiceConfig{
